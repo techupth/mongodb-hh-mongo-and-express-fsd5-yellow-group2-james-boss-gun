@@ -13,7 +13,16 @@ productRouter.get("/", async (req, res) => {
   return res.json({ data: products });
 });
 
-productRouter.get("/:id", (req, res) => {});
+productRouter.get("/:id", async (req, res) => {
+  const collection = db.collection("products");
+
+  const productId = new ObjectId(req.params.id);
+
+  const product = await collection.findOne({ _id: productId });
+  return res.json({
+    data: product,
+  });
+});
 
 productRouter.post("/", async (req, res) => {
   const collection = db.collection("products");
