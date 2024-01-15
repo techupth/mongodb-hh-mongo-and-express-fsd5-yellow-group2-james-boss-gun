@@ -5,11 +5,36 @@ import { ObjectId } from "mongodb";
 
 const productRouter = Router();
 
+// productRouter.get("/", async (req, res) => {
+//   const collection = db.collection("products");
+
+//   const products = await collection.find({}).limit(10).toArray();
+//   console.log(products);
+//   return res.json({ data: products });
+// });
+
 productRouter.get("/", async (req, res) => {
+  const category = req.query.category;
+  const keywords = req.query.keywords;
+
+  const query = {};
+
+  if (category) {
+    query.category = new RegExp(category, "i");
+  }
+
+  if (keywords) {
+    query.name = new RegExp(keywords, "i");
+  }
+
   const collection = db.collection("products");
 
-  const products = await collection.find({}).limit(10).toArray();
-  console.log(products);
+  const products = await collection
+    .find(query)
+    .limit(10)
+    .sort({ createdTime: -1 })
+    .toArray();
+
   return res.json({ data: products });
 });
 
@@ -28,6 +53,19 @@ productRouter.post("/", async (req, res) => {
   const collection = db.collection("products");
 
   const productData = { ...req.body };
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Bangkok",
+  };
+
+  productData.createdTime = new Date().toLocaleString("en-US", options);
   const products = await collection.insertOne(productData);
 
   return res.json({

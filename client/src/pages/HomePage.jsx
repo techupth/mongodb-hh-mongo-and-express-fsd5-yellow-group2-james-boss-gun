@@ -9,11 +9,16 @@ function HomePage() {
   const [isError, setIsError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
 
+  const [category, setCategory] = useState("");
+  const [searchInput, setSerchInput] = useState("");
+
   const getProducts = async () => {
     try {
       setIsError(false);
       setIsLoading(true);
-      const results = await axios("http://localhost:4001/products");
+      const results = await axios(
+        `http://localhost:4001/products?category=${category}&keywords=${searchInput}`
+      );
       setProducts(results.data.data);
       setIsLoading(false);
     } catch (error) {
@@ -30,7 +35,7 @@ function HomePage() {
 
   useEffect(() => {
     getProducts();
-  }, []);
+  }, [category, searchInput]);
 
   return (
     <div>
@@ -48,13 +53,27 @@ function HomePage() {
         <div className="search-box">
           <label>
             Search product
-            <input type="text" placeholder="Search by name" />
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchInput}
+              onChange={(event) => {
+                setSerchInput(event.target.value);
+              }}
+            />
           </label>
         </div>
         <div className="category-filter">
           <label>
             View Category
-            <select id="category" name="category" value="it">
+            <select
+              id="category"
+              name="category"
+              value={category}
+              onChange={(event) => {
+                setCategory(event.target.value);
+              }}
+            >
               <option disabled value="">
                 -- Select a category --
               </option>
@@ -86,7 +105,7 @@ function HomePage() {
                 <h1>Product name: {product.name} </h1>
                 <h2>Product price: {product.price}</h2>
                 <h3>Category: {product.category}</h3>
-                <h3>Created Time: 1 Jan 2011, 00:00:00</h3>
+                <h3>Created Time: {product.createdTime}</h3>
                 <p>Product description: {product.description} </p>
                 <div className="product-actions">
                   <button
